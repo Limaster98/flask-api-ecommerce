@@ -1,4 +1,4 @@
-from flask import Flask #importando o flask
+from flask import Flask, request, jsonify #importando o flask
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -18,6 +18,16 @@ class Product(db.Model):
 @app.route('/')
 def hello_world():
     return 'Hello World!'
+
+@app.route('/products/add', methods=["POST"]) #rota de adicionar produtos 
+def add_product():
+    data = request.json     #pega os dados enviados
+    if 'name' in data and 'price' in data:      #verifica se os dados name e price estão preenchidos
+        product = Product(name=data["name"], price=data["price"], description=data.get("description", ""))
+        db.session.add(product)
+        db.session.commit()
+        return jsonify({"message": "Product added succesfully"})
+    return jsonify({"message": "invalid product data"}), 400
 
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
