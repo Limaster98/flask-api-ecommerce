@@ -38,5 +38,17 @@ def delete_product(product_id):
         return jsonify({"message": "Product deleted successfully"})
     return jsonify({"message": "Not found. Product not available"}), 404
 
+@app.route('/products/<int:product_id>', methods=["GET"]) #utilizamos <> para informar que iremos receber um dado e dentro qual será o tipo de dado
+def get_product_detail(product_id):
+    product = db.session.get(Product, product_id)
+    if product:
+        return jsonify({
+            "id": product.id,
+            "name": product.name,
+            "price": product.price,
+            "description": product.description
+        })
+    return jsonify({"message": "Not found. Product not available"}), 404
+
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
