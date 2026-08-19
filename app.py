@@ -31,7 +31,7 @@ def add_product():
 
 @app.route('/products/delete/<int:product_id>', methods=["DELETE"]) #utilizamos <> para informar que iremos receber um dado e dentro qual será o tipo de dado
 def delete_product(product_id):
-    product = Product.query.get(product_id)
+    product = db.session.get(Product,product_id)    #product = Product.query.get(product_id) ESTE METODO QUERY.GET FICOU EM DESUSO, AGORA USAMOS SESSION.GET
     if product:
         db.session.delete(product)
         db.session.commit()
