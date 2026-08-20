@@ -50,5 +50,20 @@ def get_product_detail(product_id):
         })
     return jsonify({"message": "Not found. Product not available"}), 404
 
+@app.route('/products/update/<int:product_id>', methods=["PUT"]) #utilizamos <> para informar que iremos receber um dado e dentro qual será o tipo de dado
+def update_product(product_id):
+    product = db.session.get(Product, product_id)
+    if not product:
+        return jsonify({"message": "Not found. Product not available"}), 404
+    data = request.get_json()
+    if 'name' in data:
+        product.name = data['name']
+    if 'price' in data:
+        product.price = data['price']
+    if 'description' in data:
+        product.description = data['description']
+    db.session.commit()
+    return jsonify({"message": "Product updated successfully"})
+
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
