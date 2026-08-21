@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify #importando o flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, login_user, LoginManager
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "MINHA_CHAVE_140198"
@@ -25,12 +25,18 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
 
+# AUTENTICAÇÃO
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
+
 #definir rota para a página inicial e a função que será executada quando for requisitado
 @app.route('/')
 def hello_world():
     return 'Hello World!'
 
 @app.route('/products/add', methods=["POST"]) #rota de adicionar produtos 
+@login_required
 def add_product():
     data = request.json     #pega os dados enviados
     if 'name' in data and 'price' in data:      #verifica se os dados name e price estão preenchidos
@@ -41,6 +47,7 @@ def add_product():
     return jsonify({"message": "invalid product data"}), 400
 
 @app.route('/products/delete/<int:product_id>', methods=["DELETE"]) #utilizamos <> para informar que iremos receber um dado e dentro qual será o tipo de dado
+@login_required
 def delete_product(product_id):
     product = db.session.get(Product,product_id)    #product = Product.query.get(product_id) ESTE METODO QUERY.GET FICOU EM DESUSO, AGORA USAMOS SESSION.GET
     if product:
@@ -62,6 +69,7 @@ def get_product_detail(product_id):
     return jsonify({"message": "Not found. Product not available"}), 404
 
 @app.route('/products/update/<int:product_id>', methods=["PUT"]) #utilizamos <> para informar que iremos receber um dado e dentro qual será o tipo de dado
+@login_required
 def update_product(product_id):
     product = db.session.get(Product, product_id)
     if not product:
@@ -97,6 +105,12 @@ def login():
         login_user(user)
         return jsonify({"message": "Logged in successfully"}), 200
     return jsonify({"message": "Invalid credentials"}), 401
+
+@app.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({"message": "Logout succesfully"})
 
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
