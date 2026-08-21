@@ -1,11 +1,15 @@
 from flask import Flask, request, jsonify #importando o flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+from flask_login import UserMixin, login_user, LoginManager
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "MINHA_CHAVE_140198"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ecommerce.db'
 
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 #modelagem do banco de dados, model:
 #Produto (id, name, price, description)
@@ -84,6 +88,15 @@ def get_products():
             "description": product.description
         })
     return jsonify(product_list)
+
+@app.route('/login', methods=['POST'])
+def login():
+    login_data = request.json
+    user = User.query.filter_by(username=login_data.get('username')).first()
+    if user and user.password == login_data.get('password'):
+        login_user(user)
+        return jsonify({"message": "Logged in successfully"}), 200
+    return jsonify({"message": "Invalid credentials"}), 401
 
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
