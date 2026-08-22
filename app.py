@@ -146,5 +146,22 @@ def remove_to_cart(product_id):
         return jsonify({'message':'Item removed from the cart succesfully'})
     return jsonify({'message':'Failed to remove item from the cart'}), 400
 
+@app.route('/cart',methods=['GET'])
+@login_required
+def get_cart():
+    cart_itens = current_user.cart
+    cart_item_list = []
+    if cart_itens:
+        for cart_item in cart_itens:
+            product = db.session.get(Product,cart_item.product_id)
+            cart_item_list.append({
+                'id': cart_item.id,
+                'user_id': cart_item.user_id,
+                'product_id': cart_item.product_id,
+                'product_name': product.name,
+                'product_price': product.price
+            })
+    return jsonify(cart_item_list)
+
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
