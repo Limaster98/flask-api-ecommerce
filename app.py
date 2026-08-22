@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify #importando o flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "MINHA_CHAVE_140198"
@@ -120,6 +120,20 @@ def login():
 def logout():
     logout_user()
     return jsonify({"message": "Logout succesfully"})
+
+@app.route('/cart/add/<int:product_id>',methods=['POST'])
+@login_required
+def add_to_cart(product_id):
+    user = db.session.get(User,current_user.id)
+    product = db.session.get(Product,product_id)
+
+    if user and product:
+        cart_item = CartItem(user_id=user.id, product_id=product.id)
+        db.session.add(cart_item)
+        db.session.commit()
+        return jsonify({'message':'Item added to the cart succesfully'})
+    
+    return jsonify({'message':'Failed to add item to the cart'})
 
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
