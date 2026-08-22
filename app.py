@@ -133,7 +133,7 @@ def add_to_cart(product_id):
         db.session.commit()
         return jsonify({'message':'Item added to the cart succesfully'})
     
-    return jsonify({'message':'Failed to add item to the cart'})
+    return jsonify({'message':'Failed to add item to the cart'}),400
 
 @app.route('/cart/remove/<int:product_id>', methods=['DELETE'])
 @login_required
