@@ -163,5 +163,14 @@ def get_cart():
             })
     return jsonify(cart_item_list)
 
+@app.route('/cart/checkout', methods=['POST'])
+@login_required
+def checkout():
+    cart_items = current_user.cart
+    for cart_item in cart_items:
+        db.session.delete(cart_item)
+    db.session.commit()
+    return jsonify({'message':'Checkout succesful. Cart has been cleared'})
+
 if __name__ == "__main__":      #verificar se esta rodando direto pelo main, evitando executar quando for importado
     app.run(debug=True)     #roda app com o debug ativo para auxiliar 
