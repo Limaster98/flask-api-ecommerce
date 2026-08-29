@@ -1,9 +1,9 @@
-from flask import Flask, jsonify #importando o flask
+from flask import Flask #importando o flask
 from routes.product import products_route
 from routes.user import users_route
 from routes.cart import cart_routes
 from extensions import db, login_manager
-from models import User
+import auth
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = "MINHA_CHAVE_140198"
@@ -12,11 +12,6 @@ db.init_app(application)
 
 login_manager.init_app(application)
 login_manager.login_view = 'login'
-
-# AUTENTICAÇÃO
-@login_manager.user_loader
-def load_user(user_id):
-    return db.session.get(User, int(user_id))
 
 application.register_blueprint(products_route, url_prefix='/products')
 application.register_blueprint(users_route, url_prefix='/user')
